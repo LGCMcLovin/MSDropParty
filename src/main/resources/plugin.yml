@@ -1,0 +1,7 @@
+name: MSDropParty
+main: io.github.LGCMcLovin.ConsoleAdapter.MSDropParty
+version: 1
+commands:
+  MSDP:
+    description: MilSpec Drop party Main Command
+    usage: /MSDP
