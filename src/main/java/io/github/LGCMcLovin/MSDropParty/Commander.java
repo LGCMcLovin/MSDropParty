@@ -13,9 +13,6 @@ import org.bukkit.plugin.Plugin;
 public class Commander implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
-        for(String c:(args)) {
-            String[] entries = c.split(" ");
-        }
         switch(args[0]){
             case "add":
                 //add function to add item in hand to items list;
