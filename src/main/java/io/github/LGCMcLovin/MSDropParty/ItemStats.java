@@ -1,6 +1,10 @@
 package io.github.LGCMcLovin.MSDropParty;
 
+import org.bukkit.*;
 import org.bukkit.inventory.*;
+import org.bukkit.util.Vector;
+
+import java.util.*;
 
 /**
  * Created by Allen on 8/31/2014.
@@ -19,6 +23,11 @@ public class ItemStats {
         max = Integer.getInteger(s.split("-")[1]);
         itemStack = new ItemStack(id, 1, meta);
         freq = d;
+    }
+    public Location random(Location loc){
+        Random random = new Random();
+        int result = random.nextInt((max - min) + 1) + min;
+        return loc.add(new Vector(result,result,result));
     }
 
     public double getFreq() {

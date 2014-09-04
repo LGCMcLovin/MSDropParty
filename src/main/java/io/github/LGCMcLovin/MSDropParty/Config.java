@@ -4,8 +4,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by LGC_McLovin on 8/30/2014.
@@ -16,50 +15,63 @@ public class Config {
     static List<String> items = file.getStringList("Items");
     static String frequency = file.getString("AutoDPFrequency");
     static List<String> blacklist = file.getStringList("Blacklist");
-    private static ArrayList<ItemStats> itemList;
+    private static HashMap<ItemStack,ItemStats> itemList;
+    private static ArrayList<ItemStats> freqList;
     public static void enable(){
         file.options().copyDefaults(true);
         MSDP.saveConfig();
         loadItems();
+        reloadFreqList();
+    }
+    public static void reloadFreqList(){
+        freqList = new ArrayList<>();
+        Set<Map.Entry<ItemStack,ItemStats>> data = Config.getItemList().entrySet();
+        while(data.iterator().hasNext()){
+            ItemStats drop = data.iterator().next().getValue();
+            freqList.add(drop);
+        }
     }
 // Calls for Drop party item list
     public static void loadItems() {
         if(itemList.isEmpty())
-            itemList = new ArrayList<ItemStats>();
+            itemList = new HashMap<>();
         for (String entry : items) {
             String[] data = entry.split(" ");
             int id = Integer.getInteger(data[0].split(":")[0]);
             Short meta = Short.parseShort(data[0].split(":")[1]);
-            ItemStack itemStack = new ItemStack(id, 1, meta);
             Double freq = Double.parseDouble(data[2]);
             ItemStats itemStats = new ItemStats(id,meta,data[1],freq);
-            if (!itemList.contains(itemStats))
-                itemList.add(itemStats);
+            if (!itemList.containsValue(itemStats))
+                itemList.put(itemStats.getItemStack(), itemStats);
         }
+        reloadFreqList();
     }
 
-    public static ArrayList<ItemStats> getItemList() {
+    public static HashMap<ItemStack,ItemStats> getItemList() {
         return itemList;
     }
 
     public static boolean addItem(ItemStats data) {
         if(itemList.isEmpty())
-            itemList = new ArrayList<>();
-        if (itemList.contains(data)){
+            itemList = new HashMap<>();
+        if (itemList.containsValue(data)){
             return false;
         }else{
-            itemList.add(data);
+            itemList.put(data.getItemStack(), data);
             items.add(data.toString());
             MSDP.saveConfig();
+            reloadFreqList();
             return true;
         }
     }
-    public static boolean removeItem(int id){
+    public static boolean removeItem(ItemStack itemStack){
         if (!itemList.isEmpty()){
-            if (itemList.get(id)!=null){
-                itemList.remove(id);
-                items.remove(id);
+            if (itemList.get(itemStack)!= null){
+                ItemStats itemStats = itemList.get(itemStack);
+                items.remove(itemStack);
+                itemList.remove(itemStats.toString());
                 MSDP.saveConfig();
+                reloadFreqList();
                 return true;
             } else {
                 return false;
@@ -69,4 +81,7 @@ public class Config {
         }
     }
 
+    public static ArrayList<ItemStats> getFreqList() {
+        return freqList;
+    }
 }
